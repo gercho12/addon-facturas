@@ -1,4 +1,63 @@
 
+import { serviceLayerUrl, makeAuthenticatedRequest, handleApiError } from './procesarFactura.js';
+import natural from "natural"; // Asegurarse que natural está importado si se usa tokenizer y stemmer
+
+// Inicialización de herramientas de procesamiento de lenguaje natural (si no están ya en procesarFactura.js y se usan aquí)
+const tokenizer = new natural.WordTokenizer();
+const stemmer = natural.PorterStemmer;
+
+export async function obtenerDatosOrdenCompraSAP(ordenCompraNum, sessionId) {
+  console.log(`Obteniendo orden de compra número ${ordenCompraNum}...`);
+  try {
+    const purchaseOrderUrl = `${serviceLayerUrl}PurchaseOrders?$filter=DocNum eq ${ordenCompraNum}`;
+    const purchaseOrderResponse = await makeAuthenticatedRequest(purchaseOrderUrl, 'GET', null, sessionId);
+    console.log("🟢 Orden de compra obtenida exitosamente de SAP.");
+
+    if (!purchaseOrderResponse || !purchaseOrderResponse.value || purchaseOrderResponse.value.length === 0) {
+      throw new Error(`No se encontró la orden de compra con número ${ordenCompraNum}`);
+    }
+    const purchaseOrder = purchaseOrderResponse.value[0];
+    if (!purchaseOrder.DocumentLines || purchaseOrder.DocumentLines.length === 0) {
+      throw new Error(`La orden de compra ${ordenCompraNum} no tiene líneas de items`);
+    }
+    return purchaseOrder;
+  } catch (error) {
+    handleApiError(error, `la orden de compra ${ordenCompraNum}`);
+    // handleApiError ya lanza el error, así que no es necesario un throw aquí explícito
+    // si handleApiError no lanzara, necesitaríamos: throw error;
+  }
+}
+
+export async function validarYEmparejarItemsConOC(jsonDataParsed, sessionId, ordenCompraNum, purchaseOrderSAP) {
+  console.log("🟢 Iniciando validación y emparejamiento de ítems con Orden de Compra...");
+  try {
+    // Se asume que matchPurchaseOrderItems está disponible en este scope (importada o definida previamente en este archivo)
+    const { matchedItems, unmatchedItems } = await matchPurchaseOrderItems(
+      jsonDataParsed.items,
+      jsonDataParsed.total,
+      sessionId,
+      ordenCompraNum,
+      purchaseOrderSAP
+    );
+
+    if (unmatchedItems.length > 0) {
+      console.warn(`Advertencia: ${unmatchedItems.length} ítems no coincidieron con la OC:`, unmatchedItems);
+      throw new Error('No se pudieron emparejar todos los ítems con la Orden de Compra. Proceso cancelado.');
+    }
+
+    // verificarTotalFacturas ya lanza un error si la verificación falla, por lo que no se necesita !totalFacturasVerificado.
+    await verificarTotalFacturas(ordenCompraNum, jsonDataParsed.total, sessionId);
+    
+    const docEntryOrdenCompra = await obtenerDocEntryDeOrdenCompra(ordenCompraNum, sessionId);
+
+    console.log("✅ Validación y emparejamiento con OC completados exitosamente.");
+    return { matchedItems, docEntryOrdenCompra };
+  } catch (error) {
+    console.error(`❌ Error durante la validación y emparejamiento con OC para la orden ${ordenCompraNum}:`, error.message);
+    throw error; // Re-lanzar para que sea manejado por la función llamante (procesarFactura)
+  }
+}
+
 export async function verificarTotalFacturas(ordenNro, totalNuevaFactura, sessionId) {
     console.log(`🔍 Verificación de total de facturas para orden ${ordenNro}`);
   
