@@ -1,0 +1,8 @@
+﻿<loginTicketRequest>
+  <header>
+    <uniqueId>2412172214</uniqueId>
+    <generationTime>2024-12-17T22:14:29</generationTime>
+    <expirationTime>2024-12-17T23:14:29</expirationTime>
+  </header>
+  <service>wscdc</service>
+</loginTicketRequest>

@@ -1,0 +1,3 @@
+cd [direccion carpeta wsaa]
+
+./wsaa-cliente.ps1 -Certificado "C:\Users\alang\wsaa\CERTSOL.pfx" -Password "PENDE24" -ServicioId "wscdc"
