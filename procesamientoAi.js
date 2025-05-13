@@ -21,7 +21,7 @@ import Tesseract from 'tesseract.js'; // Para extraer texto de imágenes (OCR)
 dotenv.config();
 
 // Inicialización de la API de Google AI
-const genAI = new GoogleGenerativeAI("AIzaSyBQrilJFuAofn3ZKFgH0YhRL4PWkqdZHSE"); // Reemplaza con tu API Key si es necesario, o usa process.env.GOOGLE_API_KEY
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY); // Reemplaza con tu API Key si es necesario, o usa process.env.GOOGLE_API_KEY
 
 // Configuración de logging
 const LOG_LEVEL = {
@@ -141,7 +141,7 @@ export async function procesarFacturaAi(rutaArchivo, mimeTypeParam) {
                 mimeType: actualMimeType // Usar el mimeType determinado consistentemente
             }
         };
-        const modelName = "gemini-2.5-flash-preview-04-17"; // Nombre del modelo como en el original
+        const modelName = process.env.AI_MODEL; // Nombre del modelo como en el original
         log(LOG_LEVEL.INFO, `Iniciando procesamiento con modelo ${colors.bright}${modelName}${colors.reset}${colors.dim}...`);
     
         try {

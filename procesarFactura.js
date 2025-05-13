@@ -38,15 +38,15 @@ const httpsAgent = new https.Agent({
 const fetch = (await import('node-fetch')).default;
 
 // URL base para el Service Layer de SAP Business One
-export const serviceLayerUrl = 'https://artico.krimax.net:50100/b1s/v1/';
+export const serviceLayerUrl = process.env.SERVICE_LAYER;
 
 // Función para iniciar sesión en SAP Business One
 async function login() {
   console.log("Iniciando sesión en SAP Business One...");
   const loginData = {
-    CompanyDB: "08TEST",
-    UserName: "manager",
-    Password: "Mouse123$"
+    CompanyDB: process.env.BASE_DE_DATOS,
+    UserName: process.env.USUARIO,
+    Password: process.env.PASSWORD,
   };
 
   try {
@@ -296,7 +296,7 @@ async function crearFacturaEnSAP(jsonDataParsed, cardCode, sessionId, taxCode, m
 
 // --- FUNCIÓN PRINCIPAL ORQUESTADORA ---
 export async function procesarFactura(rutaArchivo, ordenCompra, emailRemitente) {
-  const emailCliente = "alangerscho@gmail.com";
+  const emailCliente = process.env.EMAIL_CLIENTE;
   let cardCode = null; // Declarar cardCode aquí para que esté disponible en el catch final
   let sessionId = null;
 

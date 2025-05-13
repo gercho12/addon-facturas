@@ -38,44 +38,6 @@ async function obtenerTokenYSign() {
 
 async function consultarWSCDC(datosFactura) {
 
-  // const datosFactura = {
-  //   "codigoFactura": "0003-00001112",
-  //   "tipoFactura": "A",
-  //   "fechaEmision": "2022-04-08",
-  //   "fechaVencimiento": "2022-04-18",
-  //   "codigoAutorizacionTipo": "CAE",
-  //   "codigoAutorizacion": "72141953268317",
-  //   "fechaCodigoAutorizacion": "2022-04-18",
-  //   "tipoCompra": "Service",
-  //   "emisor": {
-  //     "nombre": "KRIMAX",
-  //     "direccion": "Av. Leandro N.Alem 592 Piso 10 C.A.B.A - Argentina",
-  //     "telefono": null,
-  //     "email": null,
-  //     "CUIT": "20266261781"
-  //   },
-  //   "items": [
-  //     {
-  //       "codigo": null,
-  //       "descripcion": "Alquiler infraestructura",
-  //       "cantidadUnidades": 1,
-  //       "precioUnidad": 81725,
-  //       "importeItem": 81725,
-  //       "bonificacion": null
-  //     }
-  //   ],
-  //   "subtotal": 81725,
-  //   "impuestos": {
-  //     "IVA": {
-  //       "tasa": 0.21,
-  //       "monto": 17162.25
-  //     }
-  //   },
-  //   "total": 98887.25,
-  //   "totalTrasVencimiento": null,
-  //   "divisa": null
-  // };
-
   try {
     const { token, sign } = await obtenerTokenYSign();
     const url = 'https://servicios1.afip.gov.ar/wscdc/service.asmx?WSDL';
@@ -169,76 +131,7 @@ async function consultarWSCDC(datosFactura) {
     throw error;
   }
 }
-// async function validarFactura(rutaArchivo) {
-//   console.log(`\nIniciando validación de factura: ${rutaArchivo}`);
-  
-//   try {
-//     // Optimizar imagen
-//     const imageFilePath = await optimizeImage(rutaArchivo);
-//     console.log('Imagen optimizada correctamente');
 
-//     // Configurar modelo IA
-//     const model = genAI.getGenerativeModel({ 
-//       model: "gemini-1.5-flash",
-//       generationConfig: {
-//         temperature: 0.4,
-//         topP: 0.99,
-//         topK: 130,
-//         maxOutputTokens: 1000,
-//         responseMimeType: "application/json",
-//       }
-//     });
-
-//     // Crear chat y procesar imagen
-//     const chat = model.startChat({
-//       history: facturas.map(factura => [
-//         { role: "user", parts: [{ text: "Factura:" }, factura.file] },
-//         { role: "model", parts: [{ text: JSON.stringify(factura.response) }] }
-//       ]).flat()
-//     });
-
-//     const imagenUsuario = await fileToGenerativePart(imageFilePath, "image/webp");
-//     const result = await chat.sendMessage([
-//       { text: "factura:" },
-//       imagenUsuario
-//     ]);
-
-//     const text = result.response.text();
-//     console.log('\nDatos extraídos de la factura:', text);
-
-//     if (text.startsWith("An error occurred")) {
-//       throw new Error("Error en la respuesta del modelo de IA: " + text);
-//     }
-
-//     const jsonDataParsed = JSON.parse(text);
-    
-//     // Obtener token y sign
-//     console.log('\nObteniendo credenciales de AFIP...');
-//     // const { token, sign } = await obtenerTokenYSign();
-
-//     // Validar con AFIP
-//     console.log('\nValidando factura con AFIP...');
-//     const validacionAFIP = await consultarWSCDC(jsonDataParsed);
-
-//     console.log('\nResultado de la validación:', 
-//       validacionAFIP.valido ? 
-//       '✅ La factura es válida' : 
-//       `❌ La factura no es válida: ${validacionAFIP.observaciones || 'Sin observaciones'}`
-//     );
-
-//     // Limpiar archivo temporal
-//     await fs.unlink(imageFilePath);
-    
-//     return {
-//       datosFactura: jsonDataParsed,
-//       validacionAFIP
-//     };
-
-//   } catch (error) {
-//     console.error('\nError en el proceso de validación:', error);
-//     throw error;
-//   }
-// }
 export async function verificarFactura(datosFactura) {
   try {
     const validacionAFIP = await consultarWSCDC(datosFactura);

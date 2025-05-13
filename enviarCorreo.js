@@ -136,7 +136,7 @@ async function probarEnvioCorreo() {
   try {
     console.log('🟢 Iniciando prueba de envío de correo...');
     const resultado = await enviarCorreoRespuesta(
-      'alangerscho@gmail.com', // Reemplaza con un correo de prueba
+      process.env.EMAIL_CLIENTE, // Reemplaza con un correo de prueba
       true,
       null,
       'Proveedor de Prueba',
