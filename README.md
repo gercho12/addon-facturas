@@ -1,3 +1,5 @@
+Para la versión en español de este documento, por favor consulta [README_es.md](README_es.md).
+
 # Project Title
 
 ## Introduction/Overview
