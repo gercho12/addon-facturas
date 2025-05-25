@@ -199,6 +199,50 @@ npm run dev
 
 ## Project Structure
 
+```
+.
+├── adjuntos_facturas/  # Default directory for storing invoice attachments from emails
+├── entrenamiento/        # Contains sample invoices for training/testing AI models
+├── wsaa/                 # Contains files related to AFIP WSAA authentication (certs, scripts)
+├── .env                  # Environment variables (should be in .gitignore)
+├── .gitattributes        # Git attributes configuration
+├── .gitignore            # Specifies intentionally untracked files that Git should ignore
+├── contexto.js           # Contains context/examples for the AI model (e.g., sample invoice data)
+├── eng.traineddata       # Tesseract language data for English OCR
+├── spa.traineddata       # Tesseract language data for Spanish OCR
+├── enviarCorreo.js       # Module for sending email notifications
+├── escucharCorreos.js    # Module for listening to an IMAP email account for new invoices
+├── executeWSAA.js        # Module for executing AFIP WSAA authentication scripts
+├── funcionesOC.js        # Functions related to Purchase Order (OC) processing in SAP
+├── index.js              # Main entry point for the email listening service
+├── package-lock.json     # Records exact versions of dependencies
+├── package.json          # Project metadata, dependencies, and scripts
+├── procesamientoAi.js    # Module for interacting with Google Generative AI for invoice data extraction
+├── procesarFactura.js    # Core module orchestrating the invoice processing workflow
+├── server.js             # Entry point for the Express API server (manual invoice upload)
+├── validarFactura.js     # Module for validating invoices with AFIP web services
+└── README.md             # This file - project documentation
+```
+
+**Key File/Directory Explanations:**
+
+*   **`index.js`**: Main application entry point for the email listening service. It initializes `escucharCorreos.js` to monitor an email inbox and `procesarFactura.js` to handle incoming invoices.
+*   **`server.js`**: Sets up an Express.js web server that provides an API endpoint (`/api/process-invoice`) for manually uploading and processing invoices.
+*   **`procesarFactura.js`**: The central orchestrator for the invoice processing logic. It integrates various modules for AI data extraction, SAP communication, AFIP validation, and email notifications.
+*   **`procesamientoAi.js`**: Handles all interactions with the Google Generative AI model, including preparing data, sending requests, and parsing responses. It uses `contexto.js` for providing examples to the AI.
+*   **`escucharCorreos.js`**: Connects to an IMAP email server, listens for new emails, parses them, extracts attachments, and saves them to `adjuntos_facturas/`.
+*   **`enviarCorreo.js`**: Responsible for sending email notifications (e.g., success or failure messages) using nodemailer.
+*   **`validarFactura.js`**: Interacts with AFIP web services to validate electronic invoices. It uses `executeWSAA.js` for authentication.
+*   **`executeWSAA.js`**: Manages the execution of external scripts (e.g., PowerShell) to obtain authentication tokens (Token and Sign) from AFIP's WSAA service.
+*   **`funcionesOC.js`**: Contains helper functions for SAP Business One Purchase Order (OC) related operations, such as fetching OC data and matching items.
+*   **`contexto.js`**: Provides few-shot examples or system instructions (e.g., sample invoice structures and expected JSON outputs) to guide the AI model's responses.
+*   **`wsaa/`**: Directory intended to hold AFIP WSAA (Web Service de Autenticación y Autorización) related files, such as digital certificates (`.pfx`) and the PowerShell script (`wsaa-cliente.ps1`) for obtaining authentication tokens.
+*   **`adjuntos_facturas/`**: Default directory where invoice attachments retrieved from emails are stored before and during processing.
+*   **`entrenamiento/`**: Contains sample invoice files (images, PDFs) that can be used for training, fine-tuning, or testing the AI data extraction models.
+*   **`*.traineddata`**: Language files for Tesseract OCR engine (e.g., `spa.traineddata` for Spanish).
+*   **`.env`**: Stores environment-specific configuration variables (API keys, database credentials, etc.). **This file should not be committed to version control.**
+*   **`package.json`**: Defines project metadata, lists dependencies, and includes scripts for running, testing, and developing the application.
+
 ## API Endpoints
 
 ## Error Handling and Logging
